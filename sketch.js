@@ -1,3 +1,4 @@
+
 // let Blocks = [];
 // let smallBlockSize;
 
@@ -9,7 +10,8 @@
 // }
 
 // function draw() {
-//   drawBlocks(); 
+//   drawBlocks();
+//   updateSmallBlockColors(); // Update colors using Perlin noise
 // }
 
 // // Allow output images to automatically adjust to changes in window size
@@ -97,10 +99,6 @@
 //   Blocks.push(new Block(smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
 //   Blocks.push(new Block(18 * smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
 //   Blocks.push(new Block(32 * smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
-
-//   // Add extra blocks
-//   Blocks.push(new Block(32 * smallBlockSize, 34 * smallBlockSize, 3 * smallBlockSize, 2 * smallBlockSize, color(230, 205, 40)));
-//   Blocks.push(new Block(15 * smallBlockSize, 22 * smallBlockSize, 2 * smallBlockSize, 2 * smallBlockSize, color(230, 205, 40)));
 // }
 
 // // Create a class with each block (buildings, roads) as a separate object for management and drawing
@@ -113,7 +111,15 @@
 //     this.c = c;
 //     this.isRoad = isRoad; // Checks if blocks are road blocks, defaults to false
 //   }
-  
+
+//   updateColor(noiseVal) {
+//     // Adjust the color based on Perlin noise value
+//     let r = map(noiseVal, 0, 1, 152, 200);
+//     let g = map(noiseVal, 0, 1, 149, 150);
+//     let b = map(noiseVal, 0, 1, 5, 255);
+//     this.c = color(r, g, b);
+//   }
+
 //   display() {
 //     noStroke(); 
 //     fill(this.c);
@@ -132,24 +138,26 @@
 
 // // Generate random blocks on road blocks to simulate cars
 // function generateRandomSmallBlocks() {
-
-//   // Check each block object in the Blocks array and check if it is road block (isRoad is true)
 //   for (let i = 0; i < Blocks.length; i++) {
-//     if  (Blocks[i].isRoad) {
-//       // Generate small blocks randomly in the road area
+//     if (Blocks[i].isRoad) {
 //       let numSmallBlocks = 5; // Each road generates five blocks
 //       for (let t = 0; t < numSmallBlocks; t++) {
-//         // Use Math.floor() to ensure that randomly generated numbers are integers
-//         // Make the position of the randomly generated small blocks on the road blocks
 //         let x = Blocks[i].x + Math.floor(random(0, Blocks[i].w / smallBlockSize)) * smallBlockSize;
 //         let y = Blocks[i].y + Math.floor(random(0, Blocks[i].h / smallBlockSize)) * smallBlockSize;
-
-//         // assign blue or red colour randomly to the smallblocks
 //         let colorSmallBlock = random() > 0.5 ? color(160, 55, 45) : color(70, 100, 190);
-
-//         // Add random small blocks to the Blocks array
 //         Blocks.push(new Block(x, y, smallBlockSize, smallBlockSize, colorSmallBlock));
 //       }
+//     }
+//   }
+// }
+
+// // Update the color of small blocks using Perlin noise
+// function updateSmallBlockColors() {
+//   let timeOffset = frameCount * 0.01;
+//   for (let i = 0; i < Blocks.length; i++) {
+//     if (Blocks[i].isRoad) {
+//       let noiseVal = noise(Blocks[i].x * 0.07, Blocks[i].y * 0.07, timeOffset);
+//       Blocks[i].updateColor(noiseVal);
 //     }
 //   }
 // }
@@ -157,6 +165,7 @@
 
 let Blocks = [];
 let smallBlockSize;
+let Cars = []; // Array to store car blocks
 
 function setup() {
   createCanvas(windowWidth, windowHeight); // Drawing canvas as window size
@@ -168,12 +177,15 @@ function setup() {
 function draw() {
   drawBlocks();
   updateSmallBlockColors(); // Update colors using Perlin noise
+  moveCars(); // Move the cars along the roads
+  drawCars(); // Draw the moving cars
 }
 
 // Allow output images to automatically adjust to changes in window size
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   Blocks = []; // Clear the original Blocks array at each window adjustment 
+  Cars = []; // Clear the Cars array
   initializeBlocks();
   generateRandomSmallBlocks();
   drawBlocks();
@@ -209,7 +221,7 @@ function initializeBlocks() {
   Blocks.push(new Block(41 * smallBlockSize, 9 * smallBlockSize, 5 * smallBlockSize, 4 * smallBlockSize, color(230, 205, 40)));
   Blocks.push(new Block(41 * smallBlockSize, 22 * smallBlockSize, 5 * smallBlockSize, 3 * smallBlockSize, color(230, 205, 40)));
 
-  // blue blocks simulate buildings
+  //blue blocks simulate buildings
   Blocks.push(new Block(4 * smallBlockSize, 13 * smallBlockSize, 3 * smallBlockSize, 3 * smallBlockSize, color(70, 100, 190)));
   Blocks.push(new Block(4 * smallBlockSize, 36 * smallBlockSize, 3 * smallBlockSize, 3 * smallBlockSize, color(70, 100, 190)));
   Blocks.push(new Block(14 * smallBlockSize, 21 * smallBlockSize, 4 * smallBlockSize, 5 * smallBlockSize, color(70, 100, 190)));
@@ -219,7 +231,7 @@ function initializeBlocks() {
   Blocks.push(new Block(10 * smallBlockSize, 12 * smallBlockSize, smallBlockSize, smallBlockSize, color(70, 100, 190)));
   Blocks.push(new Block(18 * smallBlockSize, 12 * smallBlockSize, smallBlockSize, smallBlockSize, color(70, 100, 190)));
 
-  // red blocks simulate buildings
+  // Red blocks simulate buildings
   Blocks.push(new Block(7 * smallBlockSize, 21 * smallBlockSize, 4 * smallBlockSize, 3 * smallBlockSize, color(160, 55, 45)));
   Blocks.push(new Block(8 * smallBlockSize, 40 * smallBlockSize, 2 * smallBlockSize, 2 * smallBlockSize, color(160, 55, 45)));
   Blocks.push(new Block(8 * smallBlockSize, 44 * smallBlockSize, 2 * smallBlockSize, 2 * smallBlockSize, color(160, 55, 45)));
@@ -251,7 +263,7 @@ function initializeBlocks() {
   Blocks.push(new Block(12 * smallBlockSize, 2 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
   Blocks.push(new Block(26 * smallBlockSize, 2 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
   Blocks.push(new Block(30 * smallBlockSize, 2 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
-  
+
   Blocks.push(new Block(smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
   Blocks.push(new Block(18 * smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
   Blocks.push(new Block(32 * smallBlockSize, 6 * smallBlockSize, smallBlockSize, smallBlockSize, color(200, 200, 200)));
@@ -271,8 +283,8 @@ class Block {
   updateColor(noiseVal) {
     // Adjust the color based on Perlin noise value
     let r = map(noiseVal, 0, 1, 152, 200);
-    let g = map(noiseVal, 0, 1, 149, 150);
-    let b = map(noiseVal, 0, 1, 5, 255);
+    let g = map(noiseVal, 0, 1, 100, 150);
+    let b = map(noiseVal, 0, 1, 50, 255);
     this.c = color(r, g, b);
   }
 
@@ -301,9 +313,58 @@ function generateRandomSmallBlocks() {
         let x = Blocks[i].x + Math.floor(random(0, Blocks[i].w / smallBlockSize)) * smallBlockSize;
         let y = Blocks[i].y + Math.floor(random(0, Blocks[i].h / smallBlockSize)) * smallBlockSize;
         let colorSmallBlock = random() > 0.5 ? color(160, 55, 45) : color(70, 100, 190);
-        Blocks.push(new Block(x, y, smallBlockSize, smallBlockSize, colorSmallBlock));
+        Cars.push(new Car(x, y, smallBlockSize, colorSmallBlock, Blocks[i]));
       }
     }
+  }
+}
+
+// Class to create car objects
+class Car {
+  constructor(x, y, size, c, roadBlock) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.c = c;
+    this.roadBlock = roadBlock; // Reference to the road block the car is on
+    this.speed = random(1, 3); // Random speed for each car
+    this.direction = roadBlock.w > roadBlock.h ? 'horizontal' : 'vertical'; // Determine movement direction based on road orientation
+  }
+
+  move() {
+    if (this.direction === 'horizontal') {
+      this.x += this.speed;
+      // If car reaches the end of the current road block, loop back or continue on the road
+      if (this.x > this.roadBlock.x + this.roadBlock.w) {
+        this.x = this.roadBlock.x; // Loop back to the start of the road block
+      }
+    } else if (this.direction === 'vertical') {
+      this.y += this.speed;
+      // If car reaches the end of the current road block, loop back or continue on the road
+      if (this.y > this.roadBlock.y + this.roadBlock.h) {
+        this.y = this.roadBlock.y; // Loop back to the start of the road block
+      }
+    }
+  }
+
+  display() {
+    fill(this.c);
+    noStroke();
+    rect(this.x, this.y, this.size, this.size);
+  }
+}
+
+// Move the cars along the roads
+function moveCars() {
+  for (let i = 0; i < Cars.length; i++) {
+    Cars[i].move();
+  }
+}
+
+// Draw the moving cars
+function drawCars() {
+  for (let i = 0; i < Cars.length; i++) {
+    Cars[i].display();
   }
 }
 
@@ -312,7 +373,7 @@ function updateSmallBlockColors() {
   let timeOffset = frameCount * 0.01;
   for (let i = 0; i < Blocks.length; i++) {
     if (Blocks[i].isRoad) {
-      let noiseVal = noise(Blocks[i].x * 0.07, Blocks[i].y * 0.07, timeOffset);
+      let noiseVal = noise(Blocks[i].x * 0.05, Blocks[i].y * 0.05, timeOffset);
       Blocks[i].updateColor(noiseVal);
     }
   }
