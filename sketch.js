@@ -271,8 +271,8 @@ class Block {
   updateColor(noiseVal) {
     // Adjust the color based on Perlin noise value
     let r = map(noiseVal, 0, 1, 152, 200);
-    let g = map(noiseVal, 0, 1, 100, 150);
-    let b = map(noiseVal, 0, 1, 50, 255);
+    let g = map(noiseVal, 0, 1, 149, 150);
+    let b = map(noiseVal, 0, 1, 5, 255);
     this.c = color(r, g, b);
   }
 
@@ -312,7 +312,7 @@ function updateSmallBlockColors() {
   let timeOffset = frameCount * 0.01;
   for (let i = 0; i < Blocks.length; i++) {
     if (Blocks[i].isRoad) {
-      let noiseVal = noise(Blocks[i].x * 0.05, Blocks[i].y * 0.05, timeOffset);
+      let noiseVal = noise(Blocks[i].x * 0.07, Blocks[i].y * 0.07, timeOffset);
       Blocks[i].updateColor(noiseVal);
     }
   }
