@@ -2,7 +2,7 @@
 
 ## I. Instructions
 
-After opening the page, a daytime city scene is displayed. The road colors smoothly transition (not very obvious, requiring careful observation), and cars automatically move along the roads. Click **'Toggle Night Mode'** to switch to a nighttime scene.
+After opening the page, a daytime city scene is displayed. The road colors transition smoothly (not very obvious, requiring careful observation), and cars automatically move along the roads while circles representing car lights flicker randomly. Click **"Toggle Night Mode"** to switch to a nighttime scene.
 
 ## II Individual details
 
