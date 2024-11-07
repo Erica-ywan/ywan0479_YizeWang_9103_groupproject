@@ -1,9 +1,13 @@
 let Blocks = [];
 let smallBlockSize;
 let Cars = []; // Array to store car blocks
+let isNightMode = false; // Flag for night mode
 
 function setup() {
   createCanvas(windowWidth, windowHeight); // Drawing canvas as window size
+  let nightModeButton = createButton('Toggle Night Mode');
+  nightModeButton.position(10, 10);
+  nightModeButton.mousePressed(toggleNightMode);
   initializeBlocks(); // Draw different coloured blocks as buildings, roads, pavements, zebra crossings.
   generateRandomSmallBlocks(); // Generate small red or blue blocks to simulate cars
   drawBlocks();
@@ -117,10 +121,17 @@ class Block {
 
   updateColor(noiseVal) {
     // Adjust the color based on Perlin noise value
-    let r = map(noiseVal, 0, 1, 63, 200);
-    let g = map(noiseVal, 0, 1, 130, 150);
-    let b = map(noiseVal, 0, 1, 100, 255);
-    this.c = color(r, g, b);
+    if (isNightMode) {
+      let r = map(noiseVal, 0, 1, 255, 80);
+      let g = map(noiseVal, 0, 1, 255, 80);
+      let b = map(noiseVal, 0, 1, 0, 150);
+      this.c = color(r, g, b); // Darker colors for night mode
+    } else {
+      let r = map(noiseVal, 0, 1, 63, 200);
+      let g = map(noiseVal, 0, 1, 130, 150);
+      let b = map(noiseVal, 0, 1, 100, 255);
+      this.c = color(r, g, b); // Lighter colors for day mode
+    }
   }
 
   display() {
@@ -133,7 +144,11 @@ class Block {
 // Clear the canvas background and generate all blocks
 function drawBlocks() {
   // Setting the canvas background color
-  background(240, 240, 235);
+  if (isNightMode) {
+    background(20, 24, 82); // Dark blue for night mode
+  } else {
+    background(240, 240, 235); // Light color for day mode
+  }
   for (let i = 0; i < Blocks.length; i++) {
     Blocks[i].display();
   }
@@ -147,7 +162,7 @@ function generateRandomSmallBlocks() {
       for (let t = 0; t < numSmallBlocks; t++) {
         let x = Blocks[i].x + Math.floor(random(0, Blocks[i].w / smallBlockSize)) * smallBlockSize;
         let y = Blocks[i].y + Math.floor(random(0, Blocks[i].h / smallBlockSize)) * smallBlockSize;
-        let colorSmallBlock = random() > 0.5 ? color(160, 55, 45) : color(70, 100, 190);
+        let colorSmallBlock = isNightMode ? color(200, 200, 200) : random() > 0.5 ? color(160, 55, 45) : color(70, 100, 190); // Light gray for cars in night mode
         Cars.push(new Car(x, y, smallBlockSize, colorSmallBlock, Blocks[i]));
       }
     }
@@ -225,4 +240,9 @@ function updateSmallBlockColors() {
       Blocks[i].updateColor(noiseVal);
     }
   }
+}
+
+// Toggle night mode
+function toggleNightMode() {
+  isNightMode = !isNightMode;
 }
