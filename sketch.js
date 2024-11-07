@@ -329,6 +329,7 @@ class Car {
     this.roadBlock = roadBlock; // Reference to the road block the car is on
     this.speed = random(1, 3); // Random speed for each car
     this.direction = roadBlock.w > roadBlock.h ? 'horizontal' : 'vertical'; // Determine movement direction based on road orientation
+    this.trailAlpha = 150; // Initial transparency for the trail
   }
 
   move() {
@@ -348,9 +349,20 @@ class Car {
   }
 
   display() {
-    fill(this.c);
+    // Draw the trail effect with easing
+    this.trailAlpha = lerp(this.trailAlpha, 0, 0.03); // Gradually reduce trail alpha
+    fill(red(this.c), green(this.c), blue(this.c), this.trailAlpha);
     noStroke();
+    ellipse(this.x, this.y, this.size * 1.5); // Draw the trail with a slightly larger size
+
+    // Draw the car
+    fill(this.c);
     rect(this.x, this.y, this.size, this.size);
+
+    // Reset trailAlpha when the car moves to maintain the effect
+    if (this.trailAlpha < 10) {
+      this.trailAlpha = 150;
+    }
   }
 }
 
