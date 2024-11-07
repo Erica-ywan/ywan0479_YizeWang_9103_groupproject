@@ -282,9 +282,9 @@ class Block {
 
   updateColor(noiseVal) {
     // Adjust the color based on Perlin noise value
-    let r = map(noiseVal, 0, 1, 152, 200);
-    let g = map(noiseVal, 0, 1, 100, 150);
-    let b = map(noiseVal, 0, 1, 50, 255);
+    let r = map(noiseVal, 0, 1, 63, 200);
+    let g = map(noiseVal, 0, 1, 130, 150);
+    let b = map(noiseVal, 0, 1, 100, 255);
     this.c = color(r, g, b);
   }
 
